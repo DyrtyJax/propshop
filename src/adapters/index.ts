@@ -1,8 +1,10 @@
 import { MockAdapter } from "./mock.js";
 import { ReplicateAdapter } from "./replicate.js";
 import type { Adapter } from "../types.js";
+import { AudioCppAdapter } from "./audio-cpp/index.js";
 
 const adapters: Record<string, Adapter> = {
+  "audio-cpp": new AudioCppAdapter(),
   mock: new MockAdapter(),
   replicate: new ReplicateAdapter(),
 };

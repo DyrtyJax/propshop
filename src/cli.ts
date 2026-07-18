@@ -6,6 +6,8 @@ import { ZodError } from "zod";
 import { listAdapters, getAdapter } from "./adapters/index.js";
 import { build, getRun, listRuns, promote, VERSION } from "./core.js";
 import { loadPropfile } from "./lib/files.js";
+import { capabilityForProp } from "./capabilities.js";
+import type { PropDefinition } from "./types.js";
 
 const TEMPLATE = `version: 1
 project: my-prop-shop
@@ -35,10 +37,10 @@ props:
     tags: [ui, success]
 `;
 
-function logPlan(project: string, props: Array<{ id: string; kind: string; provider: string; variants: number }>): void {
+function logPlan(project: string, props: PropDefinition[]): void {
   console.log(`\n  ${project}\n`);
   for (const prop of props) {
-    console.log(`  ${prop.id.padEnd(24)} ${prop.kind.padEnd(12)} ${prop.provider.padEnd(14)} ${prop.variants} take${prop.variants === 1 ? "" : "s"}`);
+    console.log(`  ${prop.id.padEnd(24)} ${capabilityForProp(prop).padEnd(24)} ${prop.provider.padEnd(14)} ${prop.variants} take${prop.variants === 1 ? "" : "s"}`);
   }
   console.log(`\n  ${props.length} prop${props.length === 1 ? "" : "s"} ready for the shop floor.\n`);
 }
@@ -117,13 +119,16 @@ program
   .option("-f, --file <path>", "path to a Propfile")
   .action(async (options: { file?: string }) => {
     const loaded = await loadPropfile(options.file);
+    let unhealthy = false;
     console.log("");
     for (const [name, config] of Object.entries(loaded.manifest.providers)) {
       const adapter = getAdapter(config.adapter);
       const result = await adapter.check(config);
+      unhealthy ||= !result.ok;
       console.log(`  ${result.ok ? "✓" : "×"} ${name} (${adapter.name}) — ${result.message}`);
     }
-    console.log(`\n  Built-in adapters: ${listAdapters().map((adapter) => adapter.name).join(", ")}\n`);
+    console.log(`\n  Built-in adapters: ${listAdapters().map((adapter) => `${adapter.name}@${adapter.version}`).join(", ")}\n`);
+    if (unhealthy) process.exitCode = 1;
   });
 
 program
@@ -155,10 +160,35 @@ program
   .description("Promote one run's prop into the project's output directory")
   .argument("<prop-id>")
   .requiredOption("--run <run-id>", "source run")
+  .option("--take <number>", "take number to promote", (value) => Number.parseInt(value, 10))
+  .option("-f, --file <path>", "path to a Propfile")
+  .action(async (propId: string, options: { run: string; file?: string; take?: number }) => {
+    if (options.take !== undefined && (!Number.isInteger(options.take) || options.take < 1)) throw new Error("--take must be a positive integer");
+    const outputs = await promote(options.run, propId, options.file, options.take);
+    console.log(`\n  Promoted ${propId}:\n${outputs.map((path) => `  → ${path}`).join("\n")}\n`);
+  });
+
+program
+  .command("compare")
+  .description("Compare generated takes and their measured artifact quality")
+  .argument("<prop-id>")
+  .requiredOption("--run <run-id>", "source run")
   .option("-f, --file <path>", "path to a Propfile")
   .action(async (propId: string, options: { run: string; file?: string }) => {
-    const outputs = await promote(options.run, propId, options.file);
-    console.log(`\n  Promoted ${propId}:\n${outputs.map((path) => `  → ${path}`).join("\n")}\n`);
+    const { run } = await getRun(options.run, options.file);
+    const prop = run.props.find((candidate) => candidate.id === propId);
+    if (!prop) throw new Error(`Run ${options.run} has no prop named ${propId}`);
+    console.log(`\n  ${prop.id} · ${prop.capability}\n`);
+    for (const artifact of prop.artifacts) {
+      const inspection = artifact.inspection ?? {};
+      const failed = artifact.checks?.filter((check) => check.status === "failed").length ?? 0;
+      const duration = typeof inspection.durationSeconds === "number" ? `${inspection.durationSeconds.toFixed(3)}s` : "—";
+      const rms = typeof inspection.rmsDbfs === "number" ? `${inspection.rmsDbfs.toFixed(1)} dBFS` : "—";
+      const peak = typeof inspection.peakDbfs === "number" ? `${inspection.peakDbfs.toFixed(1)} dBFS` : "—";
+      console.log(`  take ${String(artifact.variant).padStart(2, "0")}  ${duration.padEnd(9)} RMS ${rms.padEnd(13)} peak ${peak.padEnd(13)} ${failed ? `${failed} failed checks` : "✓"}`);
+      console.log(`           ${artifact.path}`);
+    }
+    console.log(`\n  Promote with: propshop promote ${prop.id} --run ${run.runId} --take <number>\n`);
   });
 
 program.parseAsync().catch((error: unknown) => {

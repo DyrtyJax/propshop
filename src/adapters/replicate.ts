@@ -46,6 +46,8 @@ function extensionFrom(response: Response, url: string, override?: string): stri
 
 export class ReplicateAdapter implements Adapter {
   readonly name = "replicate";
+  readonly version = "1.0.0";
+  readonly capabilities = ["*"] as const;
 
   async check(config: ProviderConfig): Promise<{ ok: boolean; message: string }> {
     const env = config.env ?? "REPLICATE_API_TOKEN";

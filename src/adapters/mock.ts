@@ -10,6 +10,8 @@ function escapeXml(value: string): string {
 
 export class MockAdapter implements Adapter {
   readonly name = "mock";
+  readonly version = "1.0.0";
+  readonly capabilities = ["*"] as const;
 
   async check(_config: ProviderConfig): Promise<{ ok: boolean; message: string }> {
     return { ok: true, message: "ready (deterministic local preview)" };

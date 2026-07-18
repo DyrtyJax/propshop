@@ -1,0 +1,53 @@
+version: 1
+project: arcade-sound-shop
+description: Repeatable local SFX takes through audio.cpp.
+outputDir: props
+
+providers:
+  local-audio:
+    adapter: audio-cpp
+    options:
+      transport: cli
+      executable: /absolute/path/to/audio.cpp/build/bin/audiocpp_cli
+      backend: cuda
+      device: 0
+      threads: 4
+      timeoutMs: 600000
+      defaultModel: stable-audio-sfx
+      models:
+        stable-audio-sfx:
+          family: stable_audio
+          path: /absolute/path/to/models/stable-audio-3-small-sfx
+          task: gen
+          source: stabilityai/stable-audio-3-small-sfx
+          revision: replace-with-resolved-hugging-face-commit
+          license:
+            id: Stability-AI-Community
+            url: https://huggingface.co/stabilityai/stable-audio-3-small-sfx
+            restrictions: [model terms apply]
+
+props:
+  - id: menu-hover
+    kind: sfx
+    capability: audio.sfx.generate
+    prompt: Short glassy arcade menu hover with a dusty CRT click, concise and satisfying
+    provider: local-audio
+    model: stable-audio-sfx
+    variants: 4
+    input:
+      durationSeconds: 0.8
+      seed: locked
+      negativePrompt: music, speech, long ambience, reverb tail
+      inferenceSteps: 8
+      guidanceScale: 1
+      sampler: pingpong
+    checks:
+      audio:
+        durationSeconds: { min: 0.7, max: 0.9 }
+        sampleRates: [44100, 48000]
+        channels: [1, 2]
+        minRmsDbfs: -45
+        maxClippedRatio: 0.0001
+        maxLeadingSilenceSeconds: 0.1
+        maxTrailingSilenceSeconds: 0.15
+    tags: [ui, interaction, retro]
