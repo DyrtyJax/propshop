@@ -6,6 +6,12 @@
   <strong>Need a thing? Send it to PropShop.</strong>
 </p>
 
+<p align="center">
+  <a href="https://www.npmjs.com/package/propshop"><img src="https://img.shields.io/npm/v/propshop?color=ff5a47&label=npm" alt="npm version" /></a>
+  <a href="https://github.com/DyrtyJax/propshop/actions/workflows/ci.yml"><img src="https://github.com/DyrtyJax/propshop/actions/workflows/ci.yml/badge.svg" alt="shop check" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-201827" alt="Apache 2.0 license" /></a>
+</p>
+
 PropShop turns creative asset requests into reproducible builds. A coding agent can describe what a project needs; specialist providers make the raw material; PropShop records, validates, compares, and promotes the result.
 
 It is the missing workshop between an agent saying “this interface needs a satisfying glassy hover” and a production-ready file appearing in the repository.
@@ -38,32 +44,37 @@ PropShop does not try to be an image, audio, or 3D model. It provides the stable
 - explicit promotion into production assets;
 - a `Propfile.lock` recording exactly what was chosen.
 
-## Try the shop
+## Open a shop
 
 PropShop currently requires Node.js 20 or newer.
 
 ```bash
+npm install --global propshop
+propshop init my-project
+cd my-project
+propshop plan
+propshop build
+```
+
+Or take a quick look without installing globally:
+
+```bash
+npx propshop@latest init my-project
+```
+
+To run the repository's complete retro-interface example from source:
+
+```bash
 git clone https://github.com/DyrtyJax/propshop.git
 cd propshop
-npm install
-npm run build
+npm install && npm run build
 npm link
-
 propshop plan --file examples/retro-interface/Propfile.yaml
 propshop build --file examples/retro-interface/Propfile.yaml
 propshop runs --file examples/retro-interface/Propfile.yaml
 ```
 
 The example uses the deterministic `mock` adapter, so it needs no keys and spends no money. It creates branded preview cards while exercising the real run ledger, hashing, variants, and promotion flow.
-
-To start a new project:
-
-```bash
-propshop init my-project
-cd my-project
-propshop plan
-propshop build
-```
 
 ## A Propfile
 
