@@ -1,6 +1,6 @@
 {
   "name": "propshop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The creative build system for coding agents.",
   "type": "module",
   "bin": {
@@ -44,6 +44,7 @@
   "dependencies": {
     "commander": "^14.0.0",
     "replicate": "^1.1.0",
+    "saxes": "6.0.0",
     "yaml": "^2.8.1",
     "zod": "^4.1.12"
   },

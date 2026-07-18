@@ -3,6 +3,8 @@ dist/
 .env
 .DS_Store
 *.log
+.playwright-cli/
+output/playwright/
 
 # PropShop generated state and promoted artifacts
 .propshop/

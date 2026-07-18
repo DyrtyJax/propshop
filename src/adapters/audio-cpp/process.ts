@@ -1,34 +1,16 @@
 import { execFile } from "node:child_process";
-import { constants } from "node:fs";
-import { access, mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { delimiter, dirname, isAbsolute, join, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { canonicalJson, sha256 } from "../../lib/files.js";
+import { findExecutable } from "../../lib/process.js";
 import type { GenerateContext, GeneratedOutput, JsonValue } from "../../types.js";
 import type { AudioCppModel, AudioCppOptions } from "./config.js";
 import { modelProvenance, resolveModelPath } from "./config.js";
 import { normalizeAudioRequest, requestCliArgs } from "./request.js";
 
 const execFileAsync = promisify(execFile);
-
-export async function findExecutable(command: string): Promise<string> {
-  const candidates = isAbsolute(command) || command.includes("/") || command.includes("\\")
-    ? [resolve(command)]
-    : (process.env.PATH ?? "").split(delimiter).flatMap((directory) => {
-        const base = join(directory, command);
-        return process.platform === "win32" ? [base, `${base}.exe`, `${base}.cmd`] : [base];
-      });
-  for (const candidate of candidates) {
-    try {
-      await access(candidate, constants.X_OK);
-      return candidate;
-    } catch {
-      // Continue through PATH.
-    }
-  }
-  throw new Error(`Could not find executable '${command}'`);
-}
 
 export async function checkCli(options: AudioCppOptions): Promise<string> {
   const executable = await findExecutable(options.executable);

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { access, mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Command } from "commander";
 import { ZodError } from "zod";
@@ -7,7 +7,7 @@ import { listAdapters, getAdapter } from "./adapters/index.js";
 import { build, getRun, listRuns, promote, VERSION } from "./core.js";
 import { loadPropfile } from "./lib/files.js";
 import { capabilityForProp } from "./capabilities.js";
-import type { PropDefinition } from "./types.js";
+import type { ArtifactRecord, PropDefinition } from "./types.js";
 
 const TEMPLATE = `version: 1
 project: my-prop-shop
@@ -43,6 +43,40 @@ function logPlan(project: string, props: PropDefinition[]): void {
     console.log(`  ${prop.id.padEnd(24)} ${capabilityForProp(prop).padEnd(24)} ${prop.provider.padEnd(14)} ${prop.variants} take${prop.variants === 1 ? "" : "s"}`);
   }
   console.log(`\n  ${props.length} prop${props.length === 1 ? "" : "s"} ready for the shop floor.\n`);
+}
+
+function escapeHtml(value: string): string {
+  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+
+async function writeSvgContactSheet(root: string, runId: string, propId: string, artifacts: ArtifactRecord[]): Promise<string> {
+  const cards = await Promise.all(artifacts.map(async (artifact) => {
+    const inspection = artifact.inspection ?? {};
+    const safe = artifact.checks?.find((item) => item.name === "svg.safe")?.status === "passed";
+    const failed = artifact.checks?.filter((item) => item.status === "failed") ?? [];
+    const source = safe ? await readFile(resolve(root, artifact.path)) : undefined;
+    const preview = source
+      ? `<img src="data:image/svg+xml;base64,${source.toString("base64")}" alt="Take ${artifact.variant}"/>`
+      : `<div class="blocked">Preview blocked<br/>SVG safety check did not pass</div>`;
+    const colors = Array.isArray(inspection.colors) ? inspection.colors.filter((value): value is string => typeof value === "string") : [];
+    return `<article>
+      <div class="preview">${preview}</div>
+      <header><strong>Take ${String(artifact.variant).padStart(2, "0")}</strong><code>${escapeHtml(artifact.sha256.slice(0, 12))}</code></header>
+      <p>${inspection.elements ?? "—"} elements · ${inspection.paths ?? "—"} paths · depth ${inspection.maxDepth ?? "—"}</p>
+      <div class="swatches">${colors.map((color) => `<i title="${escapeHtml(color)}" style="background:${escapeHtml(color)}"></i>`).join("")}</div>
+      <small>${failed.length ? escapeHtml(failed.map((item) => item.name).join(", ")) : "all checks passed"}</small>
+    </article>`;
+  }));
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="icon" href="data:,"/>
+<title>${escapeHtml(propId)} · PropShop ${escapeHtml(runId)}</title>
+<style>
+:root{color-scheme:dark;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#17121f;color:#fff0c7}*{box-sizing:border-box}body{margin:0;padding:40px}h1{font:800 clamp(28px,5vw,56px) system-ui,sans-serif;margin:0}.run{color:#ff5a47;margin:8px 0 32px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}article{background:#211a2b;border:1px solid #423650;border-radius:18px;padding:14px;box-shadow:0 12px 40px #0005}.preview{aspect-ratio:1;display:grid;place-items:center;background:repeating-conic-gradient(#fff0c710 0 25%,transparent 0 50%) 50%/24px 24px;border-radius:12px;overflow:hidden}.preview img{width:88%;height:88%;object-fit:contain}.blocked{text-align:center;color:#ff8d7f}header{display:flex;justify-content:space-between;gap:12px;margin-top:14px}code,small{color:#a998b8}p{margin:8px 0}.swatches{display:flex;gap:5px;min-height:18px;margin-bottom:8px}.swatches i{display:block;width:18px;height:18px;border:1px solid #fff4;border-radius:50%}
+</style></head><body><h1>${escapeHtml(propId)}</h1><p class="run">${escapeHtml(runId)} · choose with your eyes</p><main class="grid">${cards.join("")}</main></body></html>`;
+  const path = resolve(root, ".propshop", "runs", runId, "comparisons", `${propId}.html`);
+  await mkdir(resolve(path, ".."), { recursive: true });
+  await writeFile(path, html, "utf8");
+  return path;
 }
 
 const program = new Command()
@@ -123,7 +157,7 @@ program
     console.log("");
     for (const [name, config] of Object.entries(loaded.manifest.providers)) {
       const adapter = getAdapter(config.adapter);
-      const result = await adapter.check(config);
+      const result = await adapter.check(config, { projectRoot: loaded.root });
       unhealthy ||= !result.ok;
       console.log(`  ${result.ok ? "✓" : "×"} ${name} (${adapter.name}) — ${result.message}`);
     }
@@ -175,18 +209,30 @@ program
   .requiredOption("--run <run-id>", "source run")
   .option("-f, --file <path>", "path to a Propfile")
   .action(async (propId: string, options: { run: string; file?: string }) => {
-    const { run } = await getRun(options.run, options.file);
+    const { run, root } = await getRun(options.run, options.file);
     const prop = run.props.find((candidate) => candidate.id === propId);
     if (!prop) throw new Error(`Run ${options.run} has no prop named ${propId}`);
     console.log(`\n  ${prop.id} · ${prop.capability}\n`);
     for (const artifact of prop.artifacts) {
       const inspection = artifact.inspection ?? {};
       const failed = artifact.checks?.filter((check) => check.status === "failed").length ?? 0;
-      const duration = typeof inspection.durationSeconds === "number" ? `${inspection.durationSeconds.toFixed(3)}s` : "—";
-      const rms = typeof inspection.rmsDbfs === "number" ? `${inspection.rmsDbfs.toFixed(1)} dBFS` : "—";
-      const peak = typeof inspection.peakDbfs === "number" ? `${inspection.peakDbfs.toFixed(1)} dBFS` : "—";
-      console.log(`  take ${String(artifact.variant).padStart(2, "0")}  ${duration.padEnd(9)} RMS ${rms.padEnd(13)} peak ${peak.padEnd(13)} ${failed ? `${failed} failed checks` : "✓"}`);
+      if (inspection.container === "svg") {
+        const elements = typeof inspection.elements === "number" ? inspection.elements : 0;
+        const paths = typeof inspection.paths === "number" ? inspection.paths : 0;
+        const colors = Array.isArray(inspection.colors) ? inspection.colors.length : 0;
+        const depth = typeof inspection.maxDepth === "number" ? inspection.maxDepth : 0;
+        console.log(`  take ${String(artifact.variant).padStart(2, "0")}  ${String(elements).padStart(4)} elements  ${String(paths).padStart(4)} paths  ${String(colors).padStart(2)} colors  depth ${String(depth).padStart(2)}  ${failed ? `${failed} failed checks` : "✓"}`);
+      } else {
+        const duration = typeof inspection.durationSeconds === "number" ? `${inspection.durationSeconds.toFixed(3)}s` : "—";
+        const rms = typeof inspection.rmsDbfs === "number" ? `${inspection.rmsDbfs.toFixed(1)} dBFS` : "—";
+        const peak = typeof inspection.peakDbfs === "number" ? `${inspection.peakDbfs.toFixed(1)} dBFS` : "—";
+        console.log(`  take ${String(artifact.variant).padStart(2, "0")}  ${duration.padEnd(9)} RMS ${rms.padEnd(13)} peak ${peak.padEnd(13)} ${failed ? `${failed} failed checks` : "✓"}`);
+      }
       console.log(`           ${artifact.path}`);
+    }
+    if (prop.artifacts.some((artifact) => artifact.inspection?.container === "svg")) {
+      const contactSheet = await writeSvgContactSheet(root, run.runId, prop.id, prop.artifacts);
+      console.log(`\n  Contact sheet: ${contactSheet}`);
     }
     console.log(`\n  Promote with: propshop promote ${prop.id} --run ${run.runId} --take <number>\n`);
   });

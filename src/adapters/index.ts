@@ -2,11 +2,15 @@ import { MockAdapter } from "./mock.js";
 import { ReplicateAdapter } from "./replicate.js";
 import type { Adapter } from "../types.js";
 import { AudioCppAdapter } from "./audio-cpp/index.js";
+import { QuiverAdapter } from "./quiver.js";
+import { SvgCommandAdapter } from "./svg-command.js";
 
 const adapters: Record<string, Adapter> = {
   "audio-cpp": new AudioCppAdapter(),
   mock: new MockAdapter(),
+  quiver: new QuiverAdapter(),
   replicate: new ReplicateAdapter(),
+  "svg-command": new SvgCommandAdapter(),
 };
 
 export function getAdapter(name: string): Adapter {

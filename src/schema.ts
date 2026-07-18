@@ -60,6 +60,43 @@ const propSchema = z.object({
           maxTrailingSilenceSeconds: z.number().nonnegative().optional(),
         })
         .optional(),
+      svg: z
+        .object({
+          requireViewBox: z.boolean().optional(),
+          requireTitle: z.boolean().optional(),
+          requireDescription: z.boolean().optional(),
+          allowText: z.boolean().optional(),
+          allowRasterImages: z.boolean().optional(),
+          maxBytes: z.number().int().positive().optional(),
+          minElements: z.number().int().nonnegative().optional(),
+          maxElements: z.number().int().positive().optional(),
+          minPaths: z.number().int().nonnegative().optional(),
+          maxPaths: z.number().int().nonnegative().optional(),
+          maxPathCommands: z.number().int().nonnegative().optional(),
+          maxDepth: z.number().int().positive().optional(),
+          maxColors: z.number().int().nonnegative().optional(),
+          maxGradients: z.number().int().nonnegative().optional(),
+          maxFilters: z.number().int().nonnegative().optional(),
+          aspectRatio: z
+            .object({
+              min: z.number().positive().optional(),
+              max: z.number().positive().optional(),
+            })
+            .refine(
+              (value) => value.min === undefined || value.max === undefined || value.min <= value.max,
+              "minimum aspect ratio must not exceed maximum aspect ratio",
+            )
+            .optional(),
+        })
+        .refine(
+          (value) => value.minElements === undefined || value.maxElements === undefined || value.minElements <= value.maxElements,
+          "minimum element count must not exceed maximum element count",
+        )
+        .refine(
+          (value) => value.minPaths === undefined || value.maxPaths === undefined || value.minPaths <= value.maxPaths,
+          "minimum path count must not exceed maximum path count",
+        )
+        .optional(),
     })
     .optional(),
   tags: z.array(z.string()).default([]),

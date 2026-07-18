@@ -1,0 +1,85 @@
+version: 1
+project: haunted-arcade-prop-shop
+description: Generate and compare one audio prop and one SVG prop in the same immutable run.
+outputDir: props
+
+style:
+  description: Dusty CRT glow and hand-printed arcade ephemera; charming, tactile, never generic cyberpunk.
+  palette: ["#201827", "#ff5a47", "#fff0c7", "#53e0c2"]
+  references: []
+
+providers:
+  local-audio:
+    adapter: audio-cpp
+    options:
+      transport: cli
+      executable: /absolute/path/to/audio.cpp/build/bin/audiocpp_cli
+      backend: metal
+      defaultModel: stable-audio-sfx
+      models:
+        stable-audio-sfx:
+          family: stable_audio
+          path: /absolute/path/to/models/stable-audio-3-small-sfx
+          source: stabilityai/stable-audio-3-small-sfx
+          revision: PINNED_HUGGING_FACE_COMMIT
+          license:
+            id: Stability-AI-Community
+            restrictions: [model terms apply]
+  vectors:
+    adapter: quiver
+    env: QUIVERAI_API_KEY
+    options:
+      defaultModel: arrow-1.1
+      instructions: Strong silhouette, balanced negative space, editable shapes, restrained detail.
+
+props:
+  - id: menu-hover
+    kind: sfx
+    capability: audio.sfx.generate
+    provider: local-audio
+    prompt: Short glassy arcade hover with a dusty CRT click, concise and satisfying
+    variants: 4
+    input:
+      durationSeconds: 0.8
+      seed: locked
+      negativePrompt: music, speech, long ambience, reverb tail
+      inferenceSteps: 8
+      guidanceScale: 1
+    checks:
+      audio:
+        durationSeconds: { min: 0.7, max: 0.9 }
+        sampleRates: [44100, 48000]
+        channels: [1, 2]
+        maxClippedRatio: 0.0001
+        maxLeadingSilenceSeconds: 0.1
+        maxTrailingSilenceSeconds: 0.15
+    tags: [ui, interaction, audio]
+
+  - id: portal-mark
+    kind: vector
+    capability: vector.svg.generate
+    provider: vectors
+    model: arrow-1.1
+    prompt: Dimensional portal emblem for a haunted arcade admission ticket, playful and instantly readable at 32 pixels
+    variants: 4
+    input:
+      width: 512
+      height: 512
+      temperature: 0.45
+      maxOutputTokens: 8192
+    checks:
+      svg:
+        requireViewBox: true
+        requireTitle: true
+        allowText: false
+        allowRasterImages: false
+        minPaths: 1
+        maxPaths: 80
+        maxPathCommands: 1200
+        maxElements: 180
+        maxDepth: 12
+        maxColors: 5
+        maxGradients: 2
+        maxFilters: 0
+        aspectRatio: { min: 0.95, max: 1.05 }
+    tags: [brand, icon, vector]

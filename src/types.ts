@@ -22,6 +22,7 @@ export interface PropDefinition {
   };
   checks?: {
     audio?: AudioChecks;
+    svg?: SvgChecks;
   };
   tags: string[];
 }
@@ -35,6 +36,25 @@ export interface AudioChecks {
   maxClippedRatio?: number;
   maxLeadingSilenceSeconds?: number;
   maxTrailingSilenceSeconds?: number;
+}
+
+export interface SvgChecks {
+  requireViewBox?: boolean;
+  requireTitle?: boolean;
+  requireDescription?: boolean;
+  allowText?: boolean;
+  allowRasterImages?: boolean;
+  maxBytes?: number;
+  minElements?: number;
+  maxElements?: number;
+  minPaths?: number;
+  maxPaths?: number;
+  maxPathCommands?: number;
+  maxDepth?: number;
+  maxColors?: number;
+  maxGradients?: number;
+  maxFilters?: number;
+  aspectRatio?: { min?: number; max?: number };
 }
 
 export interface Propfile {
@@ -74,7 +94,7 @@ export interface Adapter {
   readonly name: string;
   readonly version: string;
   readonly capabilities: readonly string[];
-  check(config: ProviderConfig): Promise<{ ok: boolean; message: string }>;
+  check(config: ProviderConfig, context?: { projectRoot: string }): Promise<{ ok: boolean; message: string }>;
   generate(context: GenerateContext): Promise<GeneratedOutput[]>;
 }
 
