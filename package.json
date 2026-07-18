@@ -1,0 +1,56 @@
+{
+  "name": "propshop",
+  "version": "0.1.0",
+  "description": "The creative build system for coding agents.",
+  "type": "module",
+  "bin": {
+    "propshop": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "schema"
+  ],
+  "scripts": {
+    "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check": "npm run typecheck && npm test",
+    "prepublishOnly": "npm run check && npm run build"
+  },
+  "keywords": [
+    "ai",
+    "assets",
+    "cli",
+    "creative-tools",
+    "generative-ai",
+    "mcp"
+  ],
+  "author": "Jackson Cantrell",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DyrtyJax/propshop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DyrtyJax/propshop/issues"
+  },
+  "homepage": "https://github.com/DyrtyJax/propshop#readme",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "replicate": "^1.1.0",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}

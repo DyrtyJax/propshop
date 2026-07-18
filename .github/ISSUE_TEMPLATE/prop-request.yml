@@ -1,0 +1,25 @@
+name: Prop request
+description: Suggest a concrete asset workflow or example pack.
+title: "prop: "
+labels: [example]
+body:
+  - type: input
+    id: need
+    attributes:
+      label: What prop does the project need?
+      placeholder: A coherent set of accessible navigation icons
+    validations:
+      required: true
+  - type: textarea
+    id: failure
+    attributes:
+      label: Why does a coding model struggle with it today?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: What makes the output production-ready?
+      placeholder: File formats, validators, dimensions, loudness, loopability, taste constraints…
+    validations:
+      required: true

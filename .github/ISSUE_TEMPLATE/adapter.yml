@@ -1,0 +1,40 @@
+name: New adapter
+description: Propose a specialist creative backend for the shop floor.
+title: "adapter: "
+labels: [adapter]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider or runtime
+      placeholder: audio.cpp, OpenPencil, ComfyUI, ElevenLabs…
+    validations:
+      required: true
+  - type: input
+    id: capabilities
+    attributes:
+      label: Capabilities
+      placeholder: sfx.generate, vector.edit, image.inpaint…
+    validations:
+      required: true
+  - type: dropdown
+    id: execution
+    attributes:
+      label: Where does it run?
+      options: [Local, Hosted API, Both]
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Reproducibility and provenance
+      description: What model, workflow, seed, license, and environment metadata should be recorded?
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Smallest delightful example
+      description: Show the Propfile entry and the artifact it should produce.
+    validations:
+      required: true

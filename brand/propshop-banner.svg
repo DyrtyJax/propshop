@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="480" viewBox="0 0 1200 480" role="img" aria-labelledby="title desc">
+  <title id="title">PropShop</title>
+  <desc id="desc">The creative build system for coding agents</desc>
+  <rect width="1200" height="480" rx="36" fill="#FFF0C7"/>
+  <path d="M0 367 228 245l195 80 219-175 238 128 320-113v315H0Z" fill="#FF5A47" opacity=".13"/>
+  <g transform="translate(79 82)">
+    <path d="m0 45 68-36 68 36-68 36Z" fill="#FF5A47" stroke="#201827" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M0 45v73l68 31V81Z" fill="#63D7C5" stroke="#201827" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M136 45v73l-68 31V81Z" fill="#FFB74D" stroke="#201827" stroke-width="8" stroke-linejoin="round"/>
+    <path d="m68-8 8 20 20 8-20 8-8 20-8-20-20-8 20-8Z" fill="#FFF0C7" stroke="#201827" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(273 80)">
+    <rect x="0" y="0" width="846" height="50" rx="25" fill="#201827"/>
+    <text x="31" y="33" fill="#FFF0C7" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="700" letter-spacing="3">OPEN SOURCE · EST. 2026 · RUN 0001</text>
+    <text x="0" y="172" fill="#201827" font-family="Arial Black, Arial, system-ui, sans-serif" font-size="112" font-weight="900" letter-spacing="-7">PROP</text>
+    <text x="331" y="172" fill="#FF5A47" font-family="Arial Black, Arial, system-ui, sans-serif" font-size="112" font-weight="900" letter-spacing="-7">SHOP</text>
+    <text x="4" y="237" fill="#201827" font-family="system-ui, sans-serif" font-size="31" font-weight="650">The creative build system for coding agents.</text>
+    <g transform="translate(4 282)">
+      <rect width="487" height="62" rx="13" fill="#201827"/>
+      <text x="23" y="40" fill="#FFF0C7" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="700">$ propshop build curtain-call</text>
+    </g>
+  </g>
+</svg>

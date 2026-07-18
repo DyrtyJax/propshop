@@ -1,0 +1,43 @@
+version: 1
+project: retro-interface
+description: A tiny prop pack for a haunted turn-of-the-millennium website.
+outputDir: props
+
+style:
+  description: CRT glow, printed ephemera, midnight arcade. Charming rather than cyberpunk.
+  references: []
+  palette: ["#17121f", "#ff4db8", "#f4efff", "#52d9ff"]
+
+providers:
+  preview:
+    adapter: mock
+
+  # Uncomment after adding REPLICATE_API_TOKEN to your environment.
+  # replicate:
+  #   adapter: replicate
+  #   env: REPLICATE_API_TOKEN
+
+props:
+  - id: portal-icon
+    kind: vector
+    prompt: An ornate dimensional portal icon with a handmade 2002 web-game sensibility
+    provider: preview
+    variants: 2
+    tags: [navigation, icon]
+
+  - id: menu-hover
+    kind: sfx
+    prompt: A short glassy arcade hover with a dusty CRT click, subtle and satisfying
+    provider: preview
+    variants: 3
+    input:
+      duration: 0.8
+    tags: [ui, interaction]
+
+  - id: midnight-loop
+    kind: music
+    prompt: A seamless abandoned-arcade ambience loop, warm tape haze, no drums
+    provider: preview
+    input:
+      duration: 45
+    tags: [ambience, loop]

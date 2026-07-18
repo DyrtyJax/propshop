@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">PropShop mark</title>
+  <desc id="desc">An open theatrical prop crate with a sparkling star</desc>
+  <rect width="256" height="256" rx="54" fill="#FFF0C7"/>
+  <path d="M43 93 128 49l85 44-85 45Z" fill="#FF5A47" stroke="#201827" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M43 93v89l85 39v-83Z" fill="#63D7C5" stroke="#201827" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M213 93v89l-85 39v-83Z" fill="#FFB74D" stroke="#201827" stroke-width="10" stroke-linejoin="round"/>
+  <path d="m128 31 9 24 24 9-24 9-9 24-9-24-24-9 24-9Z" fill="#FFF0C7" stroke="#201827" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M82 152h28M82 171h18" stroke="#201827" stroke-width="9" stroke-linecap="round"/>
+</svg>
