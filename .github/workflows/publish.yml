@@ -1,0 +1,50 @@
+name: publish-npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-${{ github.event.release.tag_name || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'DyrtyJax/propshop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name || github.ref }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.15.0'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Validate release tag
+        if: github.event_name == 'release'
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          const expected = `v${pkg.version}`;
+          if (process.env.RELEASE_TAG !== expected) {
+            throw new Error(`Release tag ${process.env.RELEASE_TAG} does not match package version ${expected}`);
+          }
+          NODE
+
+      - name: Use an OIDC-capable npm CLI
+        run: npm install --global npm@12.0.1
+
+      - run: npm ci
+      - run: npm publish --access public

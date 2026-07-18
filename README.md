@@ -158,6 +158,8 @@ Portable parameters belong under `input`; the adapter always injects the prop's 
 
 Start with the [audio.cpp adapter guide](docs/adapters/audio-cpp.md) and [SVG module guide](docs/adapters/svg.md). You can also inspect the [audio](docs/audio-backends.md) and [vector](docs/vector-backends.md) backend field guides, run the keyless [SVG command example](examples/svg-command/Propfile.yaml), or configure the combined [audio + SVG Propfile](examples/mixed-media/Propfile.yaml).
 
+Maintainers can follow the [trusted publishing release guide](docs/releasing.md) to publish through GitHub Actions without npm tokens or expiring OTP codes.
+
 ## Test audio and SVG together
 
 Configure the audio.cpp executable/model paths and export a Quiver API key in [the mixed-media example](examples/mixed-media/Propfile.yaml), then:
