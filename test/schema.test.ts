@@ -16,6 +16,21 @@ describe("Propfile schema", () => {
     expect(parsed.props[0]?.input).toEqual({});
   });
 
+  it("parses integer-micro budget guardrails with strict defaults", () => {
+    const parsed = parsePropfile({
+      ...valid,
+      budget: { maxTotalMicros: 20_000, maxPerTakeMicros: 5_000 },
+    });
+    expect(parsed.budget).toEqual({
+      maxTotalMicros: 20_000,
+      maxPerTakeMicros: 5_000,
+      allowUnknown: false,
+      allowStale: false,
+      onExceeded: "fail",
+    });
+    expect(() => parsePropfile({ ...valid, budget: { maxTotalMicros: 0.01 } })).toThrow();
+  });
+
   it("rejects duplicate IDs", () => {
     expect(() => parsePropfile({ ...valid, props: [valid.props[0], valid.props[0]] })).toThrow(/duplicate prop id/);
   });

@@ -1,0 +1,25 @@
+{
+  "name": "propshop-music-video-runtime",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check:dependencies": "node check-dependencies.mjs",
+    "render": "npm run build && node dist/render.js",
+    "smoke": "npm run build && node dist/render.js --shots ../../fixtures/off-the-rails/shots.json --facts ../../fixtures/off-the-rails/facts.json --geojson ../../fixtures/off-the-rails/rail-corridor.geojson --out-dir ./out --smoke"
+  },
+  "dependencies": {
+    "@revideo/2d": "0.11.0",
+    "@revideo/core": "0.11.0",
+    "@revideo/ffmpeg": "0.11.0",
+    "@revideo/renderer": "0.11.0",
+    "@revideo/ui": "0.11.0",
+    "@revideo/vite-plugin": "0.11.0",
+    "replicate": "1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3"
+  }
+}

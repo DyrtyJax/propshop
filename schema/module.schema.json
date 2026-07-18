@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://propshop.dev/schema/module.schema.json",
+  "title": "PropShop Module",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "name", "version", "description", "license", "skills"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$" },
+    "description": { "type": "string", "minLength": 1 },
+    "license": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "revision"],
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "revision": { "type": "string", "minLength": 1 }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]+$" },
+      "default": []
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "path"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+          "path": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "upstreams": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "url", "revision", "license", "integration"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "format": "uri" },
+          "revision": { "type": "string", "minLength": 1 },
+          "license": { "type": "string", "minLength": 1 },
+          "integration": { "enum": ["adapted", "external", "vendored"] }
+        }
+      }
+    }
+  }
+}

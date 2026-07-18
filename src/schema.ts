@@ -115,6 +115,15 @@ export const propfileSchema = z
         "must stay inside the project directory",
       )
       .default("props"),
+    budget: z
+      .object({
+        maxTotalMicros: z.number().int().nonnegative().optional(),
+        maxPerTakeMicros: z.number().int().nonnegative().optional(),
+        allowUnknown: z.boolean().default(false),
+        allowStale: z.boolean().default(false),
+        onExceeded: z.literal("fail").default("fail"),
+      })
+      .optional(),
     style: z
       .object({
         description: z.string().optional(),
