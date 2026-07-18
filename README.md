@@ -26,7 +26,7 @@ Fable / Sol / Codex
         ▼
     propshop build
         │
-        ├── OpenPencil / Iconify       vector
+        ├── Quiver / StarVector        vector
         ├── audio.cpp / ElevenLabs     audio
         ├── ComfyUI / Replicate        raster + video
         └── Blender                    3D
@@ -45,6 +45,8 @@ PropShop does not try to be an image, audio, or 3D model. It provides the stable
 - a `Propfile.lock` recording exactly what was chosen.
 
 The capability is the building block. A prop such as `audio.sfx.generate` can move between a local runtime, a warm model server, Replicate, fal, or a future API without changing its identity or quality policy. See [Building blocks, not backends](docs/architecture/building-blocks.md).
+
+The same is now true for `vector.svg.generate`: use Quiver's native-vector API today, wrap StarVector/InternSVG/OpenPencil workflows behind the versioned command protocol, or bring another adapter later. PropShop applies the same parsing, safety, structural policy, comparison, and promotion contract to every SVG.
 
 ## Open a shop
 
@@ -100,6 +102,7 @@ providers:
 props:
   - id: portal-icon
     kind: vector
+    capability: vector.svg.generate
     prompt: An ornate dimensional portal with a handmade 2002 web-game feel
     provider: preview
     variants: 3
@@ -139,28 +142,49 @@ Portable parameters belong under `input`; the adapter always injects the prop's 
 - `mock` adapter for deterministic, keyless development and CI;
 - generic Replicate adapter for hosted models that return downloadable artifacts;
 - `audio-cpp` adapter with safe CLI and warm-server transports;
+- `quiver` adapter for hosted native text-to-SVG generation;
+- `svg-command` adapter protocol for local models and creative frameworks;
 - stable capability IDs independent of models and providers;
 - locked, explicit, and fresh seed policies per take;
 - native WAV inspection for format, duration, RMS, peak, clipping, DC offset, and silence;
+- native SVG parsing for geometry, complexity, accessibility, external content, and active-content safety;
 - enforceable audio quality policies and take comparison;
+- enforceable SVG structural budgets without pretending they replace human taste;
 - YAML validation with useful errors;
 - selective builds and up to 16 variants per prop;
 - append-only event journals, atomic run views, and content hashes;
 - promotion ledger in `Propfile.lock`;
 - tests on Node.js 20 and 22.
 
-Start with the [audio.cpp adapter guide](docs/adapters/audio-cpp.md), inspect the [current audio backend field guide](docs/audio-backends.md), or copy [the complete audio.cpp Propfile](examples/audio-cpp/Propfile.yaml).
+Start with the [audio.cpp adapter guide](docs/adapters/audio-cpp.md) and [SVG module guide](docs/adapters/svg.md). You can also inspect the [audio](docs/audio-backends.md) and [vector](docs/vector-backends.md) backend field guides, run the keyless [SVG command example](examples/svg-command/Propfile.yaml), or configure the combined [audio + SVG Propfile](examples/mixed-media/Propfile.yaml).
+
+## Test audio and SVG together
+
+Configure the audio.cpp executable/model paths and export a Quiver API key in [the mixed-media example](examples/mixed-media/Propfile.yaml), then:
+
+```bash
+propshop doctor --file examples/mixed-media/Propfile.yaml
+propshop build --file examples/mixed-media/Propfile.yaml
+propshop compare menu-hover --run <run-id> --file examples/mixed-media/Propfile.yaml
+propshop compare portal-mark --run <run-id> --file examples/mixed-media/Propfile.yaml
+```
+
+To exercise the SVG kernel and local-driver contract without a model or API key:
+
+```bash
+propshop build --file examples/svg-command/Propfile.yaml
+```
 
 ## Where contributors can make this fun
 
 The highest-value next steps are deliberately separable:
 
 1. **MOSS-SoundEffect v2 adapter** as a permissively licensed specialist SFX path.
-2. **External adapter protocol and test kit** for out-of-process community building blocks.
-3. **Deterministic audio finishing** with loudness profiles, derivatives, and seamless-loop scoring.
-4. **OpenPencil adapter** with native vector linting and rendered visual checks.
-5. **ComfyUI adapter** that captures workflow, model hashes, seed, and custom-node revisions.
-6. **Contact sheet UI and MCP facade** for agent-driven comparison and promotion.
+2. **Rendered SVG contact sheets** with clipping, empty-space, and visual-salience advice.
+3. **External adapter package/test kit** built from the working SVG command protocol.
+4. **Deterministic audio finishing** with loudness profiles, derivatives, and seamless-loop scoring.
+5. **OpenPencil editing station** between raw vector generation and final promotion.
+6. **ComfyUI adapter** that captures workflow, model hashes, seed, and custom-node revisions.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before taking a prop ticket.
 

@@ -81,6 +81,35 @@
                   "maxLeadingSilenceSeconds": { "type": "number", "minimum": 0 },
                   "maxTrailingSilenceSeconds": { "type": "number", "minimum": 0 }
                 }
+              },
+              "svg": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "requireViewBox": { "type": "boolean" },
+                  "requireTitle": { "type": "boolean" },
+                  "requireDescription": { "type": "boolean" },
+                  "allowText": { "type": "boolean" },
+                  "allowRasterImages": { "type": "boolean" },
+                  "maxBytes": { "type": "integer", "minimum": 1 },
+                  "minElements": { "type": "integer", "minimum": 0 },
+                  "maxElements": { "type": "integer", "minimum": 1 },
+                  "minPaths": { "type": "integer", "minimum": 0 },
+                  "maxPaths": { "type": "integer", "minimum": 0 },
+                  "maxPathCommands": { "type": "integer", "minimum": 0 },
+                  "maxDepth": { "type": "integer", "minimum": 1 },
+                  "maxColors": { "type": "integer", "minimum": 0 },
+                  "maxGradients": { "type": "integer", "minimum": 0 },
+                  "maxFilters": { "type": "integer", "minimum": 0 },
+                  "aspectRatio": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "min": { "type": "number", "exclusiveMinimum": 0 },
+                      "max": { "type": "number", "exclusiveMinimum": 0 }
+                    }
+                  }
+                }
               }
             }
           },

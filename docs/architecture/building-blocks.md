@@ -19,7 +19,7 @@ adapter
 raw artifact → inspection → checks → compare → promote
 ```
 
-An SFX prop remains `audio.sfx.generate` whether it is fulfilled by Stable Audio through audio.cpp, MOSS-SoundEffect through a Python worker, a Replicate deployment, or a service that does not exist yet.
+An SFX prop remains `audio.sfx.generate` whether it is fulfilled by Stable Audio through audio.cpp, MOSS-SoundEffect through a Python worker, a Replicate deployment, or a service that does not exist yet. A vector prop likewise remains `vector.svg.generate` across Quiver, StarVector, InternSVG, and an editable OpenPencil workflow.
 
 ## Stable layer
 

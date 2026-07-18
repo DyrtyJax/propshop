@@ -1,0 +1,45 @@
+version: 1
+project: svg-command-demo
+description: Keyless smoke test for the versioned local SVG driver protocol.
+outputDir: props
+
+style:
+  description: Playful printed ephemera with chunky geometry and deliberate imperfection.
+  palette: ["#201827", "#ff5a47", "#fff0c7"]
+  references: []
+
+providers:
+  local-vector:
+    adapter: svg-command
+    options:
+      executable: node
+      args: [./demo-driver.mjs]
+      provenanceFiles: [./demo-driver.mjs]
+      defaultModel: deterministic-demo
+      models:
+        deterministic-demo:
+          source: examples/svg-command/demo-driver.mjs
+          revision: "1"
+          license:
+            id: Apache-2.0
+            restrictions: []
+
+props:
+  - id: portal-token
+    kind: vector
+    capability: vector.svg.generate
+    prompt: A chunky dimensional portal token for an old arcade prize counter
+    provider: local-vector
+    variants: 4
+    checks:
+      svg:
+        requireViewBox: true
+        requireTitle: true
+        requireDescription: true
+        allowText: false
+        minPaths: 2
+        maxElements: 12
+        maxColors: 3
+        maxFilters: 0
+        aspectRatio: { min: 1, max: 1 }
+    tags: [icon, arcade, demo]

@@ -11,10 +11,10 @@ import {
   writeRun,
 } from "./lib/files.js";
 import type { Adapter, PropDefinition, PropRunRecord, RunRecord } from "./types.js";
-import { inspectArtifact } from "./validation/audio.js";
+import { inspectArtifact } from "./validation/index.js";
 import { adapterSupports, capabilityForProp, normalizedParameters } from "./capabilities.js";
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
 
 function selectProps(props: PropDefinition[], ids: string[]): PropDefinition[] {
   if (ids.length === 0) return props;
@@ -104,7 +104,7 @@ export async function build(options: BuildOptions = {}): Promise<{ run: RunRecor
     await writeRun(loaded.root, run);
 
     try {
-      const health = await adapter.check(provider);
+      const health = await adapter.check(provider, { projectRoot: loaded.root });
       if (!health.ok) throw new Error(health.message);
       const failedChecks: string[] = [];
       for (let variant = 1; variant <= prop.variants; variant += 1) {
@@ -120,7 +120,7 @@ export async function build(options: BuildOptions = {}): Promise<{ run: RunRecor
           ...(loaded.manifest.style ? { style: loaded.manifest.style } : {}),
         });
         for (const [outputIndex, output] of outputs.entries()) {
-          const validation = inspectArtifact(output, prop.checks?.audio);
+          const validation = inspectArtifact(output, prop.checks);
           const suffix = outputs.length > 1 ? `-${outputIndex + 1}` : "";
           const filename = `${prop.id}-take-${String(variant).padStart(2, "0")}${suffix}.${output.extension.replace(/^\./, "")}`;
           const path = resolve(loaded.root, ".propshop", "runs", runId, "artifacts", prop.id, filename);
