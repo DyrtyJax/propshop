@@ -18,6 +18,8 @@ For a new adapter, open an issue first with:
 4. the metadata needed to reproduce a run;
 5. one small example Propfile.
 
+Adapters translate a stable PropShop capability into a provider request. Prefer portable fields such as `durationSeconds`, `seed`, and `negativePrompt`; keep provider-only experiments under `input.advanced.<adapter>`. An adapter must declare its version and supported capabilities, preserve model and runtime license provenance, and never write secrets or signed URLs into a run record. See [Building blocks, not backends](docs/architecture/building-blocks.md).
+
 ## Development
 
 ```bash
@@ -27,7 +29,7 @@ npm run build
 node dist/cli.js plan --file examples/retro-interface/Propfile.yaml
 ```
 
-Tests must not require paid credentials. Provider integrations should keep network calls behind their adapter and use fixtures in tests.
+Tests must not require paid credentials. Provider integrations should keep network calls behind their adapter and use fixtures in tests. Exercise the real request shape, transport safety, deterministic inputs, output-size limits, and artifact metadata in contract tests.
 
 ## Project boundaries
 

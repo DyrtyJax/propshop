@@ -25,6 +25,7 @@ const propSchema = z.object({
     .min(1)
     .regex(/^[a-z0-9][a-z0-9-]*$/, "use lowercase letters, numbers, and hyphens"),
   kind: z.string().min(1),
+  capability: z.string().regex(/^[a-z0-9][a-z0-9.-]+$/).optional(),
   prompt: z.string().min(1),
   provider: z.string().min(1),
   model: z.string().min(1).optional(),
@@ -34,6 +35,31 @@ const propSchema = z.object({
     .object({
       extension: z.string().regex(/^\.?[a-zA-Z0-9]+$/).optional(),
       mediaType: z.string().min(1).optional(),
+    })
+    .optional(),
+  checks: z
+    .object({
+      audio: z
+        .object({
+          durationSeconds: z
+            .object({
+              min: z.number().nonnegative().optional(),
+              max: z.number().positive().optional(),
+            })
+            .refine(
+              (value) => value.min === undefined || value.max === undefined || value.min <= value.max,
+              "minimum duration must not exceed maximum duration",
+            )
+            .optional(),
+          sampleRates: z.array(z.number().int().positive()).min(1).optional(),
+          channels: z.array(z.number().int().positive()).min(1).optional(),
+          minRmsDbfs: z.number().max(0).optional(),
+          maxPeakDbfs: z.number().max(0).optional(),
+          maxClippedRatio: z.number().min(0).max(1).optional(),
+          maxLeadingSilenceSeconds: z.number().nonnegative().optional(),
+          maxTrailingSilenceSeconds: z.number().nonnegative().optional(),
+        })
+        .optional(),
     })
     .optional(),
   tags: z.array(z.string()).default([]),

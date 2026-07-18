@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { parse } from "yaml";
 import { parsePropfile } from "../schema.js";
@@ -9,6 +9,21 @@ export const PROPFILE_NAMES = ["Propfile.yaml", "Propfile.yml"] as const;
 
 export function sha256(value: Uint8Array | string): string {
   return createHash("sha256").update(value).digest("hex");
+}
+
+export function canonicalJson(value: unknown): string {
+  const normalize = (item: unknown): unknown => {
+    if (Array.isArray(item)) return item.map(normalize);
+    if (item && typeof item === "object") {
+      return Object.fromEntries(
+        Object.entries(item as Record<string, unknown>)
+          .sort(([left], [right]) => left.localeCompare(right))
+          .map(([key, child]) => [key, normalize(child)]),
+      );
+    }
+    return item;
+  };
+  return JSON.stringify(normalize(value));
 }
 
 export function createRunId(now = new Date()): string {
@@ -59,6 +74,17 @@ export async function writeRun(root: string, run: RunRecord): Promise<string> {
   const path = resolve(root, ".propshop", "runs", run.runId, "run.json");
   await writeJsonAtomic(path, run);
   return path;
+}
+
+export async function appendRunEvent(
+  root: string,
+  runId: string,
+  type: string,
+  data: Record<string, unknown> = {},
+): Promise<void> {
+  const path = resolve(root, ".propshop", "runs", runId, "events.ndjson");
+  await mkdir(dirname(path), { recursive: true });
+  await appendFile(path, `${JSON.stringify({ timestamp: new Date().toISOString(), type, ...data })}\n`, "utf8");
 }
 
 export function relativePosix(root: string, path: string): string {

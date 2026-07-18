@@ -43,6 +43,7 @@
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
           "kind": { "type": "string", "minLength": 1 },
+          "capability": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]+$" },
           "prompt": { "type": "string", "minLength": 1 },
           "provider": { "type": "string", "minLength": 1 },
           "model": { "type": "string", "minLength": 1 },
@@ -54,6 +55,33 @@
             "properties": {
               "extension": { "type": "string" },
               "mediaType": { "type": "string" }
+            }
+          },
+          "checks": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audio": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "durationSeconds": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "min": { "type": "number", "minimum": 0 },
+                      "max": { "type": "number", "exclusiveMinimum": 0 }
+                    }
+                  },
+                  "sampleRates": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 1 } },
+                  "channels": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 1 } },
+                  "minRmsDbfs": { "type": "number", "maximum": 0 },
+                  "maxPeakDbfs": { "type": "number", "maximum": 0 },
+                  "maxClippedRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "maxLeadingSilenceSeconds": { "type": "number", "minimum": 0 },
+                  "maxTrailingSilenceSeconds": { "type": "number", "minimum": 0 }
+                }
+              }
             }
           },
           "tags": { "type": "array", "items": { "type": "string" }, "default": [] }
