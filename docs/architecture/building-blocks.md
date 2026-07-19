@@ -16,7 +16,7 @@ adapter
    └── creative framework
    │
    ▼
-raw artifact → inspection → checks → compare → promote
+raw artifact → inspection → checks → human/agent decision → promote
 ```
 
 An SFX prop remains `audio.sfx.generate` whether it is fulfilled by Stable Audio through audio.cpp, MOSS-SoundEffect through a Python worker, a Replicate deployment, or a service that does not exist yet. A vector prop likewise remains `vector.svg.generate` across Quiver, StarVector, InternSVG, and an editable OpenPencil workflow.
@@ -32,6 +32,8 @@ The stable layer owns:
 - inspection and deterministic finishing;
 - quality policies;
 - comparison, approval, and promotion history.
+
+For creative work, approval is not synonymous with a passing validator. Preserve whether a candidate was `human-selected` or `agent-selected`, the evidence presented at the decision, and what branch may run next.
 
 The stable layer must never expose a model's mutable CLI flags as PropShop's public contract.
 
@@ -107,6 +109,18 @@ MCP remains the agent-facing interface to PropShop. It is not the backend adapte
 ```
 
 Future finishing stages should preserve raw output and create lineage-linked masters and derivatives. `Propfile.lock` should evolve toward adapter/engine/model resolution; approved production state should eventually move to a separate production ledger.
+
+## Partial execution and human review
+
+Long creative runs should not disappear into a monolith. A run is a resumable graph of replaceable branches:
+
+1. execute only enough work to reach the next useful preview;
+2. preserve candidates and immutable inputs;
+3. expose artifacts, cost, uncertainty, and a recommendation;
+4. invite a human decision when taste or risk has large downstream consequences;
+5. rerun only the affected branch after the decision.
+
+Mechanical conversions and cheap diagnostics can remain autonomous. Direction, music, identity, representative motion, rough cuts, rights, and publication are common human gates unless the user explicitly delegates them. See [Module authoring](../module-authoring.md).
 
 ## Security boundary
 

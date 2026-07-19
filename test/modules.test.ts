@@ -29,6 +29,7 @@ capabilities: [example.production]
 skills:
   - name: produce-example
     path: skills/produce-example
+    interaction: checkpointed
 upstreams:
   - name: Example upstream
     url: https://example.com/upstream
@@ -61,6 +62,7 @@ describe("dockable modules", () => {
     const { moduleRoot } = await fixture();
     const loaded = await loadModule(moduleRoot);
     expect(loaded.manifest.name).toBe("example-module");
+    expect(loaded.manifest.skills[0]?.interaction).toBe("checkpointed");
     expect(loaded.manifest.upstreams[0]?.revision).toBe("abc123");
   });
 
@@ -75,6 +77,7 @@ describe("dockable modules", () => {
     expect(attached[0]?.upstreams[0]?.license).toBe("MIT");
     expect(attached[0]?.origin.kind).toBe("local");
     expect(attached[0]?.skills[0]?.sha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(attached[0]?.skills[0]?.interaction).toBe("checkpointed");
     expect(attached[0]?.skills[0]?.files).toBe(2);
   });
 

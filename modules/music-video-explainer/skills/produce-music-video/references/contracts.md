@@ -1,16 +1,31 @@
-# Production contracts
+# Optional production contracts
 
-Use `schemas/fact-pack.schema.json` for claims and citations. A verified claim needs at least one source ID. Keep claims atomic enough that a reviewer can accept or reject each one independently. Mark unfinished language `draft`.
+Use structured contracts when facts, exact timing, multiple tools, or a handoff make them valuable. Do not require them for a simple creative experiment, and do not confuse a valid manifest with a good film.
 
-Use `schemas/shot-manifest.schema.json` for the timeline. Shots must:
+## Fact pack
 
-- start at zero, remain ordered, and cover the full render without gaps or overlaps;
-- use half-open intervals (`startSeconds` inclusive, `endSeconds` exclusive);
-- cite fact IDs for every `map` or `metric` shot;
-- provide a vocal interval and performance direction for every `performance` shot;
-- keep explanatory text in `onScreenText`, where it remains editable;
-- reference assets relative to the manifest directory.
+Use `schemas/fact-pack.schema.json` when the piece publishes factual claims.
 
-Keep the canonical character description in `performer.canonicalPrompt`. Put only shot-specific emotion, action, and framing in `performanceDirection`. This reduces identity drift while leaving room for creative variation.
+- Keep each claim atomic enough to approve or reject independently.
+- Give verified claims at least one source ID and access date.
+- Mark unfinished or interpretive language `draft`.
+- Preserve the source's wording separately from the final on-screen phrasing when the distinction matters.
 
-The manifest is the production ledger, not merely a prompt. Update it when timing or sources change and rerun validation before spending money.
+## Shot manifest
+
+Use `schemas/shot-manifest.schema.json` when exact timing, asset lineage, or multiple production branches need coordination.
+
+- Use half-open intervals: start inclusive, end exclusive.
+- Keep factual text in `onScreenText` and link relevant `factIds`.
+- Keep asset paths relative to the production directory.
+- Treat `kind` as descriptive, not as a required shot grammar.
+- Record vocal intervals only when exact extraction or sync needs them.
+- Record provider/model choices as resolved production history, not as permanent creative defaults.
+
+The validator checks timeline, references, and files. It intentionally does not select a provider, estimate provider-specific pricing, demand a fixed number of takes, or approve taste.
+
+## Decisions and history
+
+Keep human and agent selections separate from the shot manifest. A review packet should say whether a choice is `pending-human`, `human-selected`, or `agent-selected`; never imply approval that did not happen.
+
+Preserve the canonical master, approved candidates, prompts, provider IDs, hashes, costs, retries, and reasons for route changes. Update the record when the edit changes.

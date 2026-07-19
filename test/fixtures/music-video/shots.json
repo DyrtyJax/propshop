@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 2,
+  "project": "Module contract test",
+  "render": {
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationSeconds": 2
+  },
+  "budget": {
+    "currency": "USD",
+    "maximum": 1,
+    "spent": 0
+  },
+  "shots": [
+    {
+      "id": "opening",
+      "kind": "narrative",
+      "startSeconds": 0,
+      "endSeconds": 2,
+      "purpose": "Establish a visual idea without prescribing a provider or compositor."
+    }
+  ]
+}

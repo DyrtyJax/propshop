@@ -11,7 +11,9 @@ function parseArgs(argv) {
     else if (arg === "--shots" || arg === "--facts") options[arg.slice(2)] = argv[++index];
     else throw new Error(`Unknown argument: ${arg}`);
   }
-  if (!options.shots || !options.facts) throw new Error("Usage: validate-production.mjs --shots <shots.json> --facts <facts.json> [--check-assets] [--publication]");
+  if (!options.shots || !options.facts) {
+    throw new Error("Usage: validate-production.mjs --shots <shots.json> --facts <facts.json> [--check-assets] [--publication]");
+  }
   return options;
 }
 
@@ -27,6 +29,9 @@ const errors = [];
 const warnings = [];
 const requireValue = (condition, message) => {
   if (!condition) errors.push(message);
+};
+const warnValue = (condition, message) => {
+  if (!condition) warnings.push(message);
 };
 const nonEmpty = (value) => typeof value === "string" && value.trim().length > 0;
 const unique = (values) => new Set(values).size === values.length;
@@ -45,7 +50,8 @@ const shotPath = resolve(options.shots);
 const factPath = resolve(options.facts);
 const [manifest, factPack] = await Promise.all([readJson(shotPath), readJson(factPath)]);
 
-requireValue(manifest?.schemaVersion === 1, "shots.schemaVersion must be 1");
+requireValue(manifest?.schemaVersion === 1 || manifest?.schemaVersion === 2, "shots.schemaVersion must be 1 or 2");
+if (manifest?.schemaVersion === 1) warnings.push("shots.schemaVersion 1 is legacy and may contain provider-specific fields; prefer version 2");
 requireValue(factPack?.schemaVersion === 1, "facts.schemaVersion must be 1");
 requireValue(nonEmpty(manifest?.project), "shots.project is required");
 requireValue(nonEmpty(factPack?.project), "facts.project is required");
@@ -87,39 +93,40 @@ for (const claim of claims) {
 const render = manifest?.render ?? {};
 requireValue(Number.isInteger(render.width) && render.width > 0, "render.width must be a positive integer");
 requireValue(Number.isInteger(render.height) && render.height > 0, "render.height must be a positive integer");
-requireValue(Number.isInteger(render.fps) && render.fps > 0, "render.fps must be a positive integer");
+requireValue(Number.isFinite(render.fps) && render.fps > 0, "render.fps must be positive");
 requireValue(Number.isFinite(render.durationSeconds) && render.durationSeconds > 0, "render.durationSeconds must be positive");
-requireValue(["std", "pro"].includes(manifest?.performer?.mode), "performer.mode must be std or pro");
-requireValue(manifest?.performer?.provider === "replicate", "performer.provider must be replicate");
-requireValue(manifest?.performer?.model === "kwaivgi/kling-avatar-v2", "performer.model must be kwaivgi/kling-avatar-v2");
-requireValue(nonEmpty(manifest?.performer?.canonicalPrompt), "performer.canonicalPrompt is required");
-requireValue(manifest?.budget?.currency === "USD", "budget.currency must be USD");
+requireValue(nonEmpty(manifest?.budget?.currency), "budget.currency is required");
 requireValue(Number.isFinite(manifest?.budget?.maximum) && manifest.budget.maximum >= 0, "budget.maximum must be non-negative");
-requireValue(Number.isInteger(manifest?.budget?.takesPerPerformanceShot) && manifest.budget.takesPerPerformanceShot > 0, "budget.takesPerPerformanceShot must be positive");
+if (manifest?.budget?.spent !== undefined) {
+  requireValue(Number.isFinite(manifest.budget.spent) && manifest.budget.spent >= 0, "budget.spent must be non-negative");
+  requireValue(manifest.budget.spent <= manifest.budget.maximum, "budget.spent exceeds budget.maximum");
+}
 
-const assetPaths = [manifest?.audio?.master, manifest?.audio?.vocals, manifest?.performer?.referenceImage];
-safeRelativePath(manifest?.audio?.master, "audio.master");
-safeRelativePath(manifest?.audio?.vocals, "audio.vocals");
-safeRelativePath(manifest?.performer?.referenceImage, "performer.referenceImage");
+const assetPaths = [];
+if (manifest?.audio?.master && safeRelativePath(manifest.audio.master, "audio.master")) assetPaths.push(manifest.audio.master);
+if (manifest?.audio?.vocals && safeRelativePath(manifest.audio.vocals, "audio.vocals")) assetPaths.push(manifest.audio.vocals);
+if (manifest?.performer?.referenceImage && safeRelativePath(manifest.performer.referenceImage, "performer.referenceImage")) assetPaths.push(manifest.performer.referenceImage);
 
 const shots = Array.isArray(manifest?.shots) ? manifest.shots : [];
+const supportedKinds = new Set(["performance", "narrative", "map", "metric", "title", "transition", "other"]);
 requireValue(shots.length > 0, "shots must contain at least one shot");
 requireValue(unique(shots.map((shot) => shot?.id)), "shot ids must be unique");
-const tolerance = 1 / Math.max(render.fps ?? 1, 1) / 10;
+const tolerance = 1 / Math.max(Number(render.fps) || 1, 1) / 10;
 let cursor = 0;
-let generatedSeconds = 0;
 
 for (const [index, shot] of shots.entries()) {
   const label = `shot ${shot?.id ?? index}`;
   requireValue(nonEmpty(shot?.id), `${label} needs an id`);
-  requireValue(["performance", "map", "metric", "title"].includes(shot?.kind), `${label} has an unsupported kind`);
+  requireValue(supportedKinds.has(shot?.kind), `${label} has an unsupported kind`);
   requireValue(Number.isFinite(shot?.startSeconds) && Number.isFinite(shot?.endSeconds), `${label} needs numeric startSeconds and endSeconds`);
   requireValue(shot?.endSeconds > shot?.startSeconds, `${label} must have positive duration`);
   if (Number.isFinite(shot?.startSeconds)) requireValue(Math.abs(shot.startSeconds - cursor) <= tolerance, `${label} creates a gap or overlap at ${cursor}s`);
   cursor = shot?.endSeconds ?? cursor;
-  requireValue(Array.isArray(shot?.factIds), `${label}.factIds must be an array`);
-  requireValue(Array.isArray(shot?.assets), `${label}.assets must be an array`);
-  requireValue(Array.isArray(shot?.onScreenText), `${label}.onScreenText must be an array`);
+  requireValue(nonEmpty(shot?.purpose), `${label} needs a purpose`);
+
+  for (const [field, value] of [["factIds", shot?.factIds], ["assets", shot?.assets], ["onScreenText", shot?.onScreenText]]) {
+    if (value !== undefined) requireValue(Array.isArray(value), `${label}.${field} must be an array when present`);
+  }
   for (const factId of shot?.factIds ?? []) {
     requireValue(claimById.has(factId), `${label} references unknown fact ${factId}`);
     const claim = claimById.get(factId);
@@ -132,11 +139,14 @@ for (const [index, shot] of shots.entries()) {
   for (const asset of shot?.assets ?? []) {
     if (safeRelativePath(asset, `${label} asset`)) assetPaths.push(asset);
   }
-  if (shot?.kind === "map" || shot?.kind === "metric") requireValue((shot.factIds ?? []).length > 0, `${label} must cite at least one fact`);
+  if (shot?.kind === "map" || shot?.kind === "metric") {
+    warnValue((shot.factIds ?? []).length > 0, `${label} has no factIds; confirm it is purely illustrative`);
+  }
   if (shot?.kind === "performance") {
-    generatedSeconds += shot.endSeconds - shot.startSeconds;
-    requireValue(nonEmpty(shot.performanceDirection), `${label} needs performanceDirection`);
-    requireValue(Number.isFinite(shot?.vocal?.startSeconds) && Number.isFinite(shot?.vocal?.endSeconds), `${label} needs a vocal interval`);
+    warnValue(nonEmpty(shot.performanceDirection), `${label} has no performanceDirection`);
+  }
+  if (shot?.vocal !== undefined) {
+    requireValue(Number.isFinite(shot?.vocal?.startSeconds) && Number.isFinite(shot?.vocal?.endSeconds), `${label} needs a numeric vocal interval`);
     requireValue(shot?.vocal?.endSeconds > shot?.vocal?.startSeconds, `${label} vocal interval must have positive duration`);
     const videoDuration = shot.endSeconds - shot.startSeconds;
     const vocalDuration = (shot?.vocal?.endSeconds ?? 0) - (shot?.vocal?.startSeconds ?? 0);
@@ -144,10 +154,6 @@ for (const [index, shot] of shots.entries()) {
   }
 }
 requireValue(Math.abs(cursor - render.durationSeconds) <= tolerance, `timeline ends at ${cursor}s, expected ${render.durationSeconds}s`);
-
-const pricePerSecond = manifest?.performer?.mode === "pro" ? 0.11 : 0.056;
-const estimatedCost = generatedSeconds * (manifest?.budget?.takesPerPerformanceShot ?? 0) * pricePerSecond;
-requireValue(estimatedCost <= (manifest?.budget?.maximum ?? -1) + 1e-9, `estimated performer cost $${estimatedCost.toFixed(2)} exceeds budget $${manifest?.budget?.maximum}`);
 
 if (options.checkAssets) {
   const base = dirname(shotPath);
@@ -167,11 +173,11 @@ if (errors.length > 0) {
 } else {
   console.log(JSON.stringify({
     valid: true,
+    schemaVersion: manifest.schemaVersion,
     shots: shots.length,
     durationSeconds: render.durationSeconds,
-    performanceSeconds: generatedSeconds,
-    takesPerPerformanceShot: manifest.budget.takesPerPerformanceShot,
-    estimatedPerformerCostUsd: Number(estimatedCost.toFixed(4)),
+    budget: manifest.budget,
     warnings: warnings.length,
+    note: "Structural validation does not approve creative quality or human taste.",
   }, null, 2));
 }

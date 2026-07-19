@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://propshop.dev/schema/music-video-explainer/shot-manifest.schema.json",
-  "title": "PropShop music-video shot manifest",
+  "title": "Optional PropShop music-video shot manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "project", "render", "audio", "performer", "style", "budget", "shots"],
+  "required": ["schemaVersion", "project", "render", "budget", "shots"],
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": { "const": 2 },
     "project": { "type": "string", "minLength": 1 },
     "render": {
       "type": "object",
@@ -15,14 +15,14 @@
       "properties": {
         "width": { "type": "integer", "minimum": 1 },
         "height": { "type": "integer", "minimum": 1 },
-        "fps": { "type": "integer", "minimum": 1 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
         "durationSeconds": { "type": "number", "exclusiveMinimum": 0 }
       }
     },
     "audio": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["master", "vocals"],
+      "required": ["master"],
       "properties": {
         "master": { "type": "string", "minLength": 1 },
         "vocals": { "type": "string", "minLength": 1 },
@@ -32,33 +32,33 @@
     "performer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["referenceImage", "canonicalPrompt", "provider", "model", "mode"],
       "properties": {
         "referenceImage": { "type": "string", "minLength": 1 },
         "canonicalPrompt": { "type": "string", "minLength": 1 },
-        "provider": { "const": "replicate" },
-        "model": { "const": "kwaivgi/kling-avatar-v2" },
-        "mode": { "enum": ["std", "pro"] }
+        "provider": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "minLength": 1 }
       }
     },
     "style": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["palette", "typefaces", "texture"],
       "properties": {
-        "palette": { "type": "array", "minItems": 2, "items": { "type": "string", "pattern": "^#[A-Fa-f0-9]{6}$" } },
-        "typefaces": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-        "texture": { "type": "string", "minLength": 1 }
+        "palette": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^#[A-Fa-f0-9]{6}$" } },
+        "typefaces": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "texture": { "type": "string" },
+        "notes": { "type": "string" }
       }
     },
     "budget": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["currency", "maximum", "takesPerPerformanceShot"],
+      "required": ["currency", "maximum"],
       "properties": {
-        "currency": { "const": "USD" },
+        "currency": { "type": "string", "minLength": 3 },
         "maximum": { "type": "number", "minimum": 0 },
-        "takesPerPerformanceShot": { "type": "integer", "minimum": 1 }
+        "spent": { "type": "number", "minimum": 0 },
+        "notes": { "type": "string" }
       }
     },
     "shots": {
@@ -67,10 +67,10 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "kind", "startSeconds", "endSeconds", "purpose", "onScreenText", "factIds", "assets"],
+        "required": ["id", "kind", "startSeconds", "endSeconds", "purpose"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-          "kind": { "enum": ["performance", "map", "metric", "title"] },
+          "kind": { "enum": ["performance", "narrative", "map", "metric", "title", "transition", "other"] },
           "startSeconds": { "type": "number", "minimum": 0 },
           "endSeconds": { "type": "number", "exclusiveMinimum": 0 },
           "purpose": { "type": "string", "minLength": 1 },
@@ -86,7 +86,8 @@
               "startSeconds": { "type": "number", "minimum": 0 },
               "endSeconds": { "type": "number", "exclusiveMinimum": 0 }
             }
-          }
+          },
+          "notes": { "type": "string" }
         }
       }
     }

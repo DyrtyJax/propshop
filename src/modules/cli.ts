@@ -9,7 +9,10 @@ function agentName(value: string): "codex" | "claude" {
 
 function printAttachment(record: Awaited<ReturnType<typeof attachModule>>): void {
   console.log(`\n  Docked ${record.name}@${record.version} for ${record.agent}.`);
-  for (const skill of record.skills) console.log(`  → ${skill.destination}`);
+  for (const skill of record.skills) {
+    const interaction = skill.interaction ? ` (${skill.interaction})` : "";
+    console.log(`  → ${skill.destination}${interaction}`);
+  }
   console.log("");
 }
 

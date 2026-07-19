@@ -33,6 +33,7 @@ export const moduleManifestSchema = z.object({
       z.object({
         name: slug,
         path: relativePath,
+        interaction: z.enum(["autonomous", "adaptive", "checkpointed"]).optional(),
       }),
     )
     .min(1),
