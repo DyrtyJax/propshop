@@ -52,6 +52,11 @@ afterEach(async () => {
 });
 
 describe("dockable modules", () => {
+  it("resolves first-party modules bundled with the package by name", async () => {
+    const loaded = await loadModule("music-video-explainer");
+    expect(loaded.manifest.name).toBe("music-video-explainer");
+  });
+
   it("loads and validates a local module", async () => {
     const { moduleRoot } = await fixture();
     const loaded = await loadModule(moduleRoot);
