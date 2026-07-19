@@ -9,3 +9,9 @@ output/playwright/
 # PropShop generated state and promoted artifacts
 .propshop/
 props/
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
