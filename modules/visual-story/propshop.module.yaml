@@ -1,0 +1,29 @@
+schemaVersion: 1
+name: visual-story
+version: 0.1.0
+description: Portable story structure, editable visual primitives, rendering routes, and review gates for maps, motion graphics, presentations, and interactive narratives.
+license: Apache-2.0
+capabilities:
+  - visual.story.produce
+  - visual.story.review
+  - visual.map.animate
+skills:
+  - name: produce-visual-story
+    path: skills/produce-visual-story
+    interaction: adaptive
+upstreams:
+  - name: HyperFrames
+    url: https://github.com/heygen-com/hyperframes.git
+    revision: 11cd61d1e3ab945f40991c9ee18e9598b3dfaccd
+    license: Apache-2.0
+    integration: external
+  - name: MapLibre GL JS
+    url: https://github.com/maplibre/maplibre-gl-js.git
+    revision: fd31bd85967c19446d836236e93021fb10ffe30d
+    license: BSD-3-Clause
+    integration: external
+  - name: MapLibre Agent Skills
+    url: https://github.com/maplibre/maplibre-agent-skills.git
+    revision: 8f9ac8ad94dc7589d28613bfd2ffc120651d7a1b
+    license: MIT
+    integration: adapted
