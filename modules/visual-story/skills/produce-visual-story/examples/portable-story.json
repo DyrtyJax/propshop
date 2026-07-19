@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "project": "harbor-at-night",
+  "title": "The Harbor After Dark",
+  "thesis": "A working waterfront changes character after sunset, but its infrastructure keeps moving the city.",
+  "audience": "Curious residents and civic decision-makers",
+  "budget": { "currency": "USD", "maxExternalSpend": 0, "spent": 0, "notes": "Fixture uses no paid calls." },
+  "outputs": [
+    { "id": "explainer", "kind": "video", "width": 1920, "height": 1080, "fps": 30 },
+    { "id": "briefing", "kind": "slides", "width": 1600, "height": 900 },
+    { "id": "feature", "kind": "scroll" },
+    { "id": "route-explorer", "kind": "interactive" }
+  ],
+  "style": {
+    "palette": ["#152733", "#f4eddc", "#e86442", "#3a8790"],
+    "tone": "Nocturnal field notes with warm industrial signals"
+  },
+  "sources": [
+    {
+      "id": "port-activity-report",
+      "title": "Example port activity report",
+      "url": "https://example.com/port-report",
+      "publisher": "Example Harbor Authority",
+      "accessedAt": "2026-07-19",
+      "license": "Example fixture only"
+    }
+  ],
+  "facts": [
+    {
+      "id": "night-share",
+      "text": "A fictional 38 percent of example vessel movements occurred during the night window.",
+      "display": "38% after dark",
+      "status": "verified",
+      "sourceIds": ["port-activity-report"],
+      "caveat": "Synthetic fixture data; do not publish."
+    }
+  ],
+  "assets": [],
+  "beats": [
+    {
+      "id": "threshold",
+      "purpose": "Turn sunset into a change of system rather than an ending.",
+      "narration": "The public waterfront quiets down. The working waterfront does not.",
+      "durationSeconds": 7,
+      "slideCount": 1,
+      "scrollScreens": 1,
+      "elements": [
+        {
+          "id": "opening-line",
+          "type": "text",
+          "role": "headline",
+          "text": "The harbor after dark",
+          "motion": [{ "preset": "reveal.soft", "trigger": "enter", "durationSeconds": 1.2 }]
+        },
+        {
+          "id": "atmosphere",
+          "type": "embed.generated-video",
+          "role": "background",
+          "alt": "A stylized nocturnal working harbor seen from the water"
+        }
+      ]
+    },
+    {
+      "id": "movement",
+      "purpose": "Show the route as infrastructure connecting places.",
+      "narration": "The path is less a line on a map than a sequence of handoffs.",
+      "durationSeconds": 10,
+      "slideCount": 2,
+      "scrollScreens": 2.5,
+      "factIds": ["night-share"],
+      "elements": [
+        {
+          "id": "night-stat",
+          "type": "stat",
+          "text": "38% after dark",
+          "factIds": ["night-share"]
+        },
+        {
+          "id": "harbor-route",
+          "type": "map.route",
+          "data": {
+            "coordinates": [[-122.52, 37.72], [-122.39, 37.79], [-122.30, 37.84]]
+          },
+          "sourceIds": ["port-activity-report"],
+          "motion": [{ "preset": "draw.route", "trigger": "scroll", "durationSeconds": 2 }]
+        },
+        {
+          "id": "east-terminal",
+          "type": "map.marker",
+          "text": "East terminal",
+          "data": { "coordinate": [-122.30, 37.84] }
+        }
+      ]
+    },
+    {
+      "id": "rhythm",
+      "purpose": "Compare activity windows without turning the piece into a dashboard.",
+      "narration": "Each handoff adds its own rhythm to the night.",
+      "durationSeconds": 8,
+      "slideCount": 1,
+      "scrollScreens": 1.5,
+      "elements": [
+        {
+          "id": "activity-bars",
+          "type": "chart.bar",
+          "factIds": ["night-share"],
+          "data": {
+            "values": [
+              { "label": "Dusk", "value": 18 },
+              { "label": "Night", "value": 38 },
+              { "label": "Dawn", "value": 24 }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "visual-treatment",
+      "question": "Should the working harbor feel observational or mythic?",
+      "status": "pending-human",
+      "rationale": "This choice changes the image route and motion language for every destination."
+    }
+  ],
+  "extensions": {
+    "example.fixture": true
+  }
+}

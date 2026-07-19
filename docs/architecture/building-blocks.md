@@ -21,6 +21,8 @@ raw artifact → inspection → checks → human/agent decision → promote
 
 An SFX prop remains `audio.sfx.generate` whether it is fulfilled by Stable Audio through audio.cpp, MOSS-SoundEffect through a Python worker, a Replicate deployment, or a service that does not exist yet. A vector prop likewise remains `vector.svg.generate` across Quiver, StarVector, InternSVG, and an editable OpenPencil workflow.
 
+For compound creative work, the portable unit can be larger than one generated file. The `visual-story` module keeps destinations, facts, beats, semantic elements, and decisions stable while a native presentation tool, browser renderer, map engine, 3D engine, or generated-video service fulfills individual branches. This is composition of capabilities, not a new monolithic backend.
+
 ## Stable layer
 
 The stable layer owns:

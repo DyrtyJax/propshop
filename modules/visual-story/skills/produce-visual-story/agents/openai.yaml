@@ -1,0 +1,4 @@
+interface:
+  display_name: "Produce Visual Story"
+  short_description: "Editable maps, motion, slides, and stories"
+  default_prompt: "Use $produce-visual-story to turn this material into an editable visual story for the right delivery format."

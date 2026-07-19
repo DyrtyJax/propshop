@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://propshop.dev/schemas/visual-story/0.1.0/story.schema.json",
+  "title": "PropShop portable visual story",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "project", "title", "outputs", "beats"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "project": { "$ref": "#/$defs/id" },
+    "title": { "$ref": "#/$defs/nonEmpty" },
+    "thesis": { "type": "string" },
+    "audience": { "type": "string" },
+    "budget": { "$ref": "#/$defs/budget" },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/output" }
+    },
+    "style": { "type": "object", "additionalProperties": true },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source" },
+      "default": []
+    },
+    "facts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/fact" },
+      "default": []
+    },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset" },
+      "default": []
+    },
+    "beats": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/beat" }
+    },
+    "decisions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/decision" },
+      "default": []
+    },
+    "extensions": { "type": "object", "additionalProperties": true }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+    },
+    "typeId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "maxExternalSpend"],
+      "properties": {
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "maxExternalSpend": { "type": "number", "minimum": 0 },
+        "spent": { "type": "number", "minimum": 0 },
+        "notes": { "type": "string" }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["video", "slides", "scroll", "interactive", "other"] },
+        "renderer": { "type": "string" },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "durationSeconds": { "type": "number", "minimum": 0 },
+        "notes": { "type": "string" },
+        "settings": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/nonEmpty" },
+        "url": { "type": "string", "format": "uri" },
+        "publisher": { "type": "string" },
+        "accessedAt": { "type": "string", "format": "date" },
+        "license": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "text": { "$ref": "#/$defs/nonEmpty" },
+        "status": { "enum": ["draft", "verified"] },
+        "sourceIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "display": { "type": "string" },
+        "caveat": { "type": "string" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "path": { "$ref": "#/$defs/nonEmpty" },
+        "kind": { "enum": ["image", "video", "audio", "svg", "geojson", "data", "font", "other"] },
+        "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+        "rights": { "type": "string" },
+        "sourceId": { "$ref": "#/$defs/id" },
+        "notes": { "type": "string" }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "purpose", "elements"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "purpose": { "$ref": "#/$defs/nonEmpty" },
+        "narration": { "type": "string" },
+        "durationSeconds": { "type": "number", "minimum": 0 },
+        "scrollScreens": { "type": "number", "minimum": 0 },
+        "slideCount": { "type": "integer", "minimum": 0 },
+        "factIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "elements": { "type": "array", "items": { "$ref": "#/$defs/element" } },
+        "transition": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "element": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "$ref": "#/$defs/typeId" },
+        "role": { "type": "string" },
+        "text": { "type": "string" },
+        "factIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "sourceIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "assetId": { "$ref": "#/$defs/id" },
+        "data": {},
+        "style": { "type": "object", "additionalProperties": true },
+        "motion": { "type": "array", "items": { "$ref": "#/$defs/motion" } },
+        "alt": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "motion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preset", "trigger"],
+      "properties": {
+        "preset": { "$ref": "#/$defs/typeId" },
+        "trigger": { "enum": ["enter", "exit", "emphasis", "scroll", "click", "time", "other"] },
+        "delaySeconds": { "type": "number", "minimum": 0 },
+        "durationSeconds": { "type": "number", "minimum": 0 },
+        "easing": { "type": "string" },
+        "parameters": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "question": { "$ref": "#/$defs/nonEmpty" },
+        "status": { "enum": ["pending-human", "human-selected", "agent-selected"] },
+        "selection": {},
+        "rationale": { "type": "string" },
+        "decidedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

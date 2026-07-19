@@ -105,6 +105,8 @@ The capability is the building block. A prop such as `audio.sfx.generate` can mo
 
 The same is now true for `vector.svg.generate`: use Quiver's native-vector API today, wrap StarVector/InternSVG/OpenPencil workflows behind the versioned command protocol, or bring another adapter later. PropShop applies the same parsing, safety, structural policy, comparison, and promotion contract to every SVG.
 
+The bundled `visual-story` module takes the same approach one level up. It keeps facts, sources, beats, semantic visuals, and human decisions portable across presentations, videos, scroll stories, interactive explainers, maps, and future destinations. Rendering routes—including native slide tools, HyperFrames, MapLibre, Blender/Unreal, and closed video apps—stay interchangeable. See [Portable visual stories](docs/visual-stories.md).
+
 ## Open a shop
 
 PropShop currently requires Node.js 20 or newer.
@@ -208,6 +210,7 @@ Portable parameters belong under `input`; the adapter always injects the prop's 
 - `audio-cpp` adapter with safe CLI and warm-server transports;
 - `quiver` adapter for hosted native text-to-SVG generation;
 - `svg-command` adapter protocol for local models and creative frameworks;
+- bundled `visual-story` module with an editable cross-format story contract and self-contained review board;
 - stable capability IDs independent of models and providers;
 - locked, explicit, and fresh seed policies per take;
 - native WAV inspection for format, duration, RMS, peak, clipping, DC offset, and silence;
@@ -220,7 +223,7 @@ Portable parameters belong under `input`; the adapter always injects the prop's 
 - promotion ledger in `Propfile.lock`;
 - tests on Node.js 20 and 22.
 
-Start with the [audio.cpp adapter guide](docs/adapters/audio-cpp.md) and [SVG module guide](docs/adapters/svg.md). You can also inspect the [audio](docs/audio-backends.md) and [vector](docs/vector-backends.md) backend field guides, run the keyless [SVG command example](examples/svg-command/Propfile.yaml), or configure the combined [audio + SVG Propfile](examples/mixed-media/Propfile.yaml).
+Start with the [audio.cpp adapter guide](docs/adapters/audio-cpp.md), [SVG module guide](docs/adapters/svg.md), and [portable visual-story module](docs/visual-stories.md). You can also inspect the [audio](docs/audio-backends.md) and [vector](docs/vector-backends.md) backend field guides, run the keyless [SVG command example](examples/svg-command/Propfile.yaml), or configure the combined [audio + SVG Propfile](examples/mixed-media/Propfile.yaml).
 
 Provider access stays outside the Propfile. See [provider authentication](docs/authentication.md) for browser login, OS-keychain storage, environment precedence, and noninteractive CI guidance.
 
