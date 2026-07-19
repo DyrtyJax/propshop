@@ -1,0 +1,4 @@
+interface:
+  display_name: "Produce Music Video"
+  short_description: "Build factual, cohesive AI music videos"
+  default_prompt: "Use $produce-music-video to produce a validated music-video explainer from my song, performer reference, facts, and map data."

@@ -44,6 +44,58 @@ PropShop does not try to be an image, audio, or 3D model. It provides the stable
 - explicit promotion into production assets;
 - a `Propfile.lock` recording exactly what was chosen.
 
+## Dock a specialist module
+
+PropShop is also a docking standard for community workflows. A module can carry one or more agent skills plus the scripts, schemas, fixtures, validation, and adapter instructions that make a specialist workflow repeatable. The creative judgment stays with the agent; the module supplies hard-won production knowledge and a stable interface.
+
+Attach a module already on disk:
+
+```bash
+propshop module inspect ./modules/music-video-explainer
+propshop module attach ./modules/music-video-explainer --agent claude --project ./off-the-rails
+```
+
+Or dock one directly from its own Git repository:
+
+```bash
+propshop module add https://github.com/someone/propshop-great-foley.git \
+  --ref v1.2.0 \
+  --agent codex \
+  --project .
+```
+
+Git modules are copied project-locally into the target agent's standard skills directory. PropShop records the resolved commit, module-manifest hash, copied-payload hash and size, declared license, and pinned upstream workflows under `.propshop/modules/`. Dependency caches and Git metadata are excluded. A module may adapt an open-source workflow without vendoring it, but it must declare the upstream URL, revision, license, and integration mode.
+
+The v1 manifest is deliberately small:
+
+```yaml
+schemaVersion: 1
+name: great-foley
+version: 1.2.0
+description: Production-tested footsteps and practical sound effects.
+license: Apache-2.0
+capabilities: [audio.sfx.generate, audio.sfx.finish]
+skills:
+  - name: produce-foley
+    path: skills/produce-foley
+upstreams:
+  - name: specialist-workflow
+    url: https://github.com/example/specialist-workflow
+    revision: 4d9c0e1
+    license: MIT
+    integration: adapted
+```
+
+There is no central creative gate and no requirement that modules share a provider. A module can use a hosted API, a local model, a deterministic renderer, or a framework that does not exist yet, as long as its boundaries and provenance remain legible.
+
+The upstream modes keep “wrap an excellent open workflow” honest:
+
+- `external` calls or installs the upstream without copying it;
+- `adapted` re-expresses the workflow as a PropShop-native recipe or skill;
+- `vendored` includes upstream code and therefore must preserve its license and notices.
+
+Treat a community module like any executable development dependency: inspect its manifest and skill instructions before giving its agent credentials or allowing paid calls.
+
 The capability is the building block. A prop such as `audio.sfx.generate` can move between a local runtime, a warm model server, Replicate, fal, or a future API without changing its identity or quality policy. See [Building blocks, not backends](docs/architecture/building-blocks.md).
 
 The same is now true for `vector.svg.generate`: use Quiver's native-vector API today, wrap StarVector/InternSVG/OpenPencil workflows behind the versioned command protocol, or bring another adapter later. PropShop applies the same parsing, safety, structural policy, comparison, and promotion contract to every SVG.
@@ -131,6 +183,13 @@ Portable parameters belong under `input`; the adapter always injects the prop's 
 | `propshop validate` | Validate references, providers, IDs, and inputs |
 | `propshop plan [ids...]` | Show the call sheet without generating anything |
 | `propshop doctor` | Check adapters and credentials |
+| `propshop auth login <provider>` | Connect through an official provider CLI or the OS keychain |
+| `propshop auth status [provider]` | Show credential sources without revealing tokens |
+| `propshop auth logout <provider>` | Remove provider-managed or keychain credentials |
+| `propshop module inspect <path>` | Validate a local community module |
+| `propshop module attach <path>` | Dock a local module into Codex or Claude |
+| `propshop module add <git-url>` | Dock a Git module and pin the resolved commit |
+| `propshop module list` | List modules attached to a project |
 | `propshop build [ids...]` | Generate takes and write an immutable run |
 | `propshop runs` | List recent runs |
 | `propshop show <run>` | Inspect complete provenance for a run |
@@ -157,6 +216,8 @@ Portable parameters belong under `input`; the adapter always injects the prop's 
 - tests on Node.js 20 and 22.
 
 Start with the [audio.cpp adapter guide](docs/adapters/audio-cpp.md) and [SVG module guide](docs/adapters/svg.md). You can also inspect the [audio](docs/audio-backends.md) and [vector](docs/vector-backends.md) backend field guides, run the keyless [SVG command example](examples/svg-command/Propfile.yaml), or configure the combined [audio + SVG Propfile](examples/mixed-media/Propfile.yaml).
+
+Provider access stays outside the Propfile. See [provider authentication](docs/authentication.md) for browser login, OS-keychain storage, environment precedence, and noninteractive CI guidance.
 
 Maintainers can follow the [trusted publishing release guide](docs/releasing.md) to publish through GitHub Actions without npm tokens or expiring OTP codes.
 

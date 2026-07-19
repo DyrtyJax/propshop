@@ -11,6 +11,17 @@
     "project": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
     "outputDir": { "type": "string", "default": "props" },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxTotalMicros": { "type": "integer", "minimum": 0 },
+        "maxPerTakeMicros": { "type": "integer", "minimum": 0 },
+        "allowUnknown": { "type": "boolean", "default": false },
+        "allowStale": { "type": "boolean", "default": false },
+        "onExceeded": { "const": "fail", "default": "fail" }
+      }
+    },
     "style": {
       "type": "object",
       "additionalProperties": false,

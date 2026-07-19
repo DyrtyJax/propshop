@@ -8,6 +8,8 @@ import { build, getRun, listRuns, promote, VERSION } from "./core.js";
 import { loadPropfile } from "./lib/files.js";
 import { capabilityForProp } from "./capabilities.js";
 import type { ArtifactRecord, PropDefinition } from "./types.js";
+import { registerAuthCommands } from "./auth/cli.js";
+import { registerModuleCommands } from "./modules/cli.js";
 
 const TEMPLATE = `version: 1
 project: my-prop-shop
@@ -84,6 +86,9 @@ const program = new Command()
   .description("The creative build system for coding agents.")
   .version(VERSION)
   .showSuggestionAfterError();
+
+registerAuthCommands(program);
+registerModuleCommands(program);
 
 program
   .command("init")

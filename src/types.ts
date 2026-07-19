@@ -1,3 +1,5 @@
+import type { BudgetPolicy } from "./cost/types.js";
+
 export type Scalar = string | number | boolean | null;
 export type JsonValue = Scalar | JsonValue[] | { [key: string]: JsonValue };
 
@@ -62,6 +64,8 @@ export interface Propfile {
   project: string;
   description?: string;
   outputDir: string;
+  /** Provider-cost guardrails, expressed in integer millionths of a US dollar. */
+  budget?: BudgetPolicy;
   style?: {
     description?: string;
     references: string[];

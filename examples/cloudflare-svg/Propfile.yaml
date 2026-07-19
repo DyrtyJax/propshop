@@ -1,0 +1,42 @@
+version: 1
+project: propshop-cloudflare-svg
+description: A low-cost, provider-direct SVG generation example.
+outputDir: output
+
+style:
+  description: Playful 1970s hardware-store mascot energy with hand-cut shapes and decisive negative space.
+  references: []
+  palette:
+    - "#ff5a47"
+    - "#ffd166"
+    - "#201827"
+
+providers:
+  workers-ai:
+    adapter: cloudflare-svg
+    options:
+      defaultModel: "@cf/qwen/qwen2.5-coder-32b-instruct"
+
+props:
+  - id: shop-mark
+    kind: logo
+    prompt: >-
+      A joyful little forge inside an open toolbox, with one four-point spark
+      rising from its center. Bold silhouette, excellent negative space, and
+      immediately recognizable at 32 pixels. No lettering, gradients, or shadows.
+    provider: workers-ai
+    variants: 2
+    input:
+      width: 64
+      height: 64
+      temperature: 0.8
+      maxOutputTokens: 4096
+    checks:
+      svg:
+        requireViewBox: true
+        requireTitle: true
+        requireDescription: true
+        allowText: false
+        allowRasterImages: false
+        maxColors: 3
+        maxDepth: 12
