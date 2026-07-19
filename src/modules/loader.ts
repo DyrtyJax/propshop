@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { cp, lstat, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { isAbsolute, relative, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { parseModuleManifest, type ModuleManifest } from "./schema.js";
 
@@ -54,8 +55,27 @@ async function findManifest(root: string): Promise<string> {
   throw new Error(`No ${MANIFEST_NAMES.join(", ")} found in ${root}`);
 }
 
+async function resolveModuleRoot(modulePath: string): Promise<string> {
+  const local = resolve(modulePath);
+  try {
+    await findManifest(local);
+    return local;
+  } catch (localError) {
+    if (/^[a-z0-9][a-z0-9-]*$/.test(modulePath)) {
+      const bundled = resolve(dirname(fileURLToPath(import.meta.url)), "../../modules", modulePath);
+      try {
+        await findManifest(bundled);
+        return bundled;
+      } catch {
+        // Preserve the more useful error for the path the user supplied.
+      }
+    }
+    throw localError;
+  }
+}
+
 export async function loadModule(modulePath: string): Promise<LoadedModule> {
-  const root = resolve(modulePath);
+  const root = await resolveModuleRoot(modulePath);
   const manifestPath = await findManifest(root);
   const manifestBytes = await readFile(manifestPath);
   const parsed = YAML.parse(manifestBytes.toString("utf8")) as unknown;

@@ -51,8 +51,8 @@ PropShop is also a docking standard for community workflows. A module can carry 
 Attach a module already on disk:
 
 ```bash
-propshop module inspect ./modules/music-video-explainer
-propshop module attach ./modules/music-video-explainer --agent claude --project ./off-the-rails
+propshop module inspect music-video-explainer
+propshop module attach music-video-explainer --agent claude --project ./off-the-rails
 ```
 
 Or dock one directly from its own Git repository:
