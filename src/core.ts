@@ -14,7 +14,7 @@ import type { Adapter, PropDefinition, PropRunRecord, RunRecord } from "./types.
 import { inspectArtifact } from "./validation/index.js";
 import { adapterSupports, capabilityForProp, normalizedParameters } from "./capabilities.js";
 
-export const VERSION = "0.4.1";
+export const VERSION = "0.5.0";
 
 function selectProps(props: PropDefinition[], ids: string[]): PropDefinition[] {
   if (ids.length === 0) return props;

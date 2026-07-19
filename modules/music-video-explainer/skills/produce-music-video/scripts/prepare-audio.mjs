@@ -71,8 +71,8 @@ const vocalsInput = resolve(options.vocals);
 const shotsPath = resolve(options.shots);
 const outDir = resolve(options.outdir);
 const shots = JSON.parse(await readFile(shotsPath, "utf8"));
-const performanceShots = (shots.shots ?? []).filter((shot) => shot.kind === "performance");
-if (performanceShots.length === 0) throw new Error("Shot manifest has no performance shots");
+const performanceShots = (shots.shots ?? []).filter((shot) => shot.kind === "performance" && shot.vocal);
+if (performanceShots.length === 0) throw new Error("Shot manifest has no performance shots with vocal intervals");
 
 const [masterInputProbe, vocalsInputProbe] = await Promise.all([probe(masterInput), probe(vocalsInput)]);
 const expectedDuration = Number(shots?.render?.durationSeconds);

@@ -1,26 +1,14 @@
 schemaVersion: 1
 name: music-video-explainer
-version: 0.1.0
-description: Produce source-grounded music videos that alternate an AI performer with deterministic maps, data, and typography.
+version: 0.2.0
+description: Optional props, practitioner memory, human decision gates, and media QA for original AI-assisted music videos.
 license: Apache-2.0
 capabilities:
-  - video.music-explainer.produce
+  - video.music.produce
+  - video.music.review
+  - video.performance.route
 skills:
   - name: produce-music-video
     path: skills/produce-music-video
-upstreams:
-  - name: Revideo
-    url: https://github.com/redotvideo/revideo
-    revision: 73479d620d151792edfee45cca32395fd1b60b94
-    license: MIT
-    integration: external
-  - name: Replicate JavaScript client
-    url: https://github.com/replicate/replicate-javascript
-    revision: 1.1.0
-    license: Apache-2.0
-    integration: external
-  - name: Kling Avatar v2 on Replicate
-    url: https://replicate.com/kwaivgi/kling-avatar-v2
-    revision: kwaivgi/kling-avatar-v2
-    license: Provider terms
-    integration: external
+    interaction: checkpointed
+upstreams: []

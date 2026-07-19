@@ -46,7 +46,9 @@ PropShop does not try to be an image, audio, or 3D model. It provides the stable
 
 ## Dock a specialist module
 
-PropShop is also a docking standard for community workflows. A module can carry one or more agent skills plus the scripts, schemas, fixtures, validation, and adapter instructions that make a specialist workflow repeatable. The creative judgment stays with the agent; the module supplies hard-won production knowledge and a stable interface.
+PropShop is also a docking standard for community workflows. A module can carry one or more agent skills plus the scripts, schemas, validation, and adapter instructions that make specialist knowledge reusable. The creative judgment stays with the agent; the module supplies hard-won production memory, small deterministic props, and a stable interface.
+
+Modules are advisory by default. They should not force a provider, model, take count, shot grammar, or creative framework when the agent has a better route. Creative modules should expose visible progress and invite a few high-leverage human decisions before taste-defining or expensive branches. See [Authoring modules that help without taking over](docs/module-authoring.md).
 
 Attach a module already on disk:
 
@@ -78,6 +80,7 @@ capabilities: [audio.sfx.generate, audio.sfx.finish]
 skills:
   - name: produce-foley
     path: skills/produce-foley
+    interaction: adaptive
 upstreams:
   - name: specialist-workflow
     url: https://github.com/example/specialist-workflow
@@ -95,6 +98,8 @@ The upstream modes keep “wrap an excellent open workflow” honest:
 - `vendored` includes upstream code and therefore must preserve its license and notices.
 
 Treat a community module like any executable development dependency: inspect its manifest and skill instructions before giving its agent credentials or allowing paid calls.
+
+`skills[].interaction` is optional metadata for hosts and humans: `autonomous` normally runs through, `adaptive` decides when review is useful, and `checkpointed` intentionally preserves human promotion points. The skill instructions remain authoritative, and an explicit user delegation can still authorize autonomous choices.
 
 The capability is the building block. A prop such as `audio.sfx.generate` can move between a local runtime, a warm model server, Replicate, fal, or a future API without changing its identity or quality policy. See [Building blocks, not backends](docs/architecture/building-blocks.md).
 

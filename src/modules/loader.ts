@@ -38,7 +38,14 @@ export interface ModuleAttachment {
   attachedAt: string;
   agent: "codex" | "claude";
   origin: ModuleOrigin;
-  skills: Array<{ name: string; destination: string; sha256: string; files: number; bytes: number }>;
+  skills: Array<{
+    name: string;
+    destination: string;
+    interaction?: "autonomous" | "adaptive" | "checkpointed";
+    sha256: string;
+    files: number;
+    bytes: number;
+  }>;
   source?: ModuleManifest["source"];
   upstreams: ModuleManifest["upstreams"];
 }
@@ -150,7 +157,12 @@ export async function attachModule(options: AttachModuleOptions): Promise<Module
       force: false,
       filter: (path) => !ignoredSkillPath(source, path),
     });
-    destinations.push({ name: skill.name, destination, ...payload });
+    destinations.push({
+      name: skill.name,
+      destination,
+      ...(skill.interaction ? { interaction: skill.interaction } : {}),
+      ...payload,
+    });
   }
 
   const record: ModuleAttachment = {
